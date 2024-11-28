@@ -1,8 +1,10 @@
 package com.megatrex4;
 
+import com.megatrex4.event.TooltipEventListener;
 import com.megatrex4.items.ItemGroupRegistry;
 import com.megatrex4.items.ItemRegistry;
 import com.megatrex4.items.KeyBindingRegistry;
+import com.megatrex4.network.ActivateNanoHelmetPacket;
 import net.fabricmc.api.ModInitializer;
 
 import org.slf4j.Logger;
@@ -22,7 +24,9 @@ public class AugmentedReborn implements ModInitializer {
 		ItemRegistry.ItemRegistry();
 		ItemGroupRegistry.ItemGroupRegistry();
 		KeyBindingRegistry.registerKeybindings();
+		ActivateNanoHelmetPacket.register();
 
+		TooltipEventListener.register();
 
 		LOGGER.info("Hello Fabric world! its " + AugmentedReborn.MOD_ID);
 	}

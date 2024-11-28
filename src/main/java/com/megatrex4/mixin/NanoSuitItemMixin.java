@@ -1,6 +1,6 @@
 package com.megatrex4.mixin;
 
-import com.megatrex4.util.NightVisionHandler;
+import com.megatrex4.items.ActivatableItem;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.entity.player.PlayerEntity;
@@ -14,30 +14,21 @@ import techreborn.items.armor.NanoSuitItem;
 
 @Mixin(NanoSuitItem.class)
 public abstract class NanoSuitItemMixin {
+
     private static final long ENERGY_COST = TechRebornConfig.nanoSuitNightVisionCost;
 
     @Inject(method = "tickArmor", at = @At("HEAD"), cancellable = true)
     private void tickArmor(ItemStack stack, PlayerEntity playerEntity, CallbackInfo info) {
-        if (!isHelmet(stack) || playerEntity.getInventory().getArmorStack(3) != stack) {
+        if (!(stack.getItem() instanceof ActivatableItem activatable) || !activatable.isActivated(stack)) {
             removeNightVision(playerEntity);
-            info.cancel();
             return;
         }
 
-        if (NightVisionHandler.isNightVisionEnabled()) {
-            if (tryUseEnergy(stack, playerEntity, ENERGY_COST)) {
-                playerEntity.addStatusEffect(new StatusEffectInstance(StatusEffects.NIGHT_VISION, 220, 1, false, false));
-            } else {
-                removeNightVision(playerEntity);
-            }
+        if (playerEntity.getInventory().getArmorStack(3) == stack && tryUseEnergy(stack, playerEntity, ENERGY_COST)) {
+            playerEntity.addStatusEffect(new StatusEffectInstance(StatusEffects.NIGHT_VISION, 220, 1, false, false));
         } else {
             removeNightVision(playerEntity);
         }
-        info.cancel();
-    }
-
-    private boolean isHelmet(ItemStack stack) {
-        return ((NanoSuitItem) (Object) this).getSlotType() == net.minecraft.entity.EquipmentSlot.HEAD;
     }
 
     private boolean tryUseEnergy(ItemStack stack, PlayerEntity player, long energyCost) {
@@ -51,4 +42,3 @@ public abstract class NanoSuitItemMixin {
         }
     }
 }
-

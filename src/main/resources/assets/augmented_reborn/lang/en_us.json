@@ -15,10 +15,10 @@
   "key.augmented_reborn.toggle_night_vision": "Toggle Night Vision",
   "category.augmented_reborn.keys": "Augmented Reborn Keys",
 
-  "item.augmented_reborn.nanosuit.night_vision.status": "Night Vision:",
-  "item.augmented_reborn.nanosuit.night_vision.status_message": "Night Vision:",
-  "item.augmented_reborn.nanosuit.night_vision.enabled": "enabled",
-  "item.augmented_reborn.nanosuit.night_vision.disabled": "disabled",
+  "item.augmented_reborn.night_vision.status": "Night Vision:",
+  "item.augmented_reborn.night_vision.status_message": "Night Vision:",
+  "item.augmented_reborn.night_vision.enabled": "Enabled",
+  "item.augmented_reborn.night_vision.disabled": "Disabled",
 
   "item.augmented_reborn.vajra.tooltip.mode": "Vajra"
 }

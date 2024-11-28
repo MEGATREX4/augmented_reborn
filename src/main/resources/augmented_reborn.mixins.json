@@ -5,7 +5,10 @@
 	"mixins": [
 		"ExampleMixin",
 		"NanoSuitItemMixin",
-		"PlayerEntityMixin"
+		"PlayerEntityMixin",
+		"NanoSuitItemActivatableMixin",
+		"QuantumSuitItemActivatableMixin",
+		"QuantumSuitItemMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1

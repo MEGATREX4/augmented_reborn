@@ -271,15 +271,6 @@ public class vajraItem extends DrillItem {
         return super.postHit(stack, target, attacker);
     }
 
-
-
-
-
-
-
-
-
-
     @Override
     public boolean postMine(ItemStack stack, World world, BlockState state, BlockPos pos, LivingEntity entityLiving) {
         if (entityLiving instanceof PlayerEntity player) {
