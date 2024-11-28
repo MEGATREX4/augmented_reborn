@@ -1,0 +1,19 @@
+package com.megatrex4.event;
+
+import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
+import net.fabricmc.fabric.api.event.player.PlayerBlockBreakEvents; // Ensure this is imported
+import net.minecraft.entity.EquipmentSlot; // Ensure this is imported
+import net.minecraft.entity.player.PlayerEntity;
+import techreborn.items.armor.NanoSuitItem;
+
+// Register an event for armor changes
+public static void registerArmorChangeEvent() {
+    // Use a Fabric-compatible event
+    ServerLivingEntityEvents.EQUIPMENT_CHANGE.register((entity, slot, oldStack, newStack) -> {
+        if (entity instanceof PlayerEntity player && slot == EquipmentSlot.HEAD) {
+            if (!(newStack.getItem() instanceof NanoSuitItem)) {
+                NanoSuitItemMixin.removeNightVision(player); // Ensure the method is static or adjust
+            }
+        }
+    });
+}

@@ -1,0 +1,25 @@
+package com.megatrex4.items;
+
+import net.minecraft.item.ItemStack;
+import techreborn.items.armor.NanoSuitItem;
+
+public class ActivatableNanoHelmet extends NanoSuitItem implements ActivatableItem {
+    public ActivatableNanoHelmet(Settings settings) {
+        super(settings);
+    }
+
+    @Override
+    public boolean isActivated(ItemStack stack) {
+        return ActivatableItem.super.isActivated(stack);
+    }
+
+    @Override
+    public void setActivated(ItemStack stack, boolean activated) {
+        ActivatableItem.super.setActivated(stack, activated);
+    }
+
+    @Override
+    public void toggleActivation(ItemStack stack) {
+        ActivatableItem.super.toggleActivation(stack);
+    }
+}

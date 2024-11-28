@@ -1,0 +1,4 @@
+package com.megatrex4.mixin;
+
+public class NanoSuitItemActivatableMixin {
+}
