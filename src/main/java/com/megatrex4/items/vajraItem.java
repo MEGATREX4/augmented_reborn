@@ -140,10 +140,10 @@ public class vajraItem extends DrillItem {
         String energyMode = getEnergyMode(stack);
 
         if (!hasSufficientEnergy(stack, switch (energyMode) {
-            case "LOW" -> 1000L;
-            case "MEDIUM" -> 5000L;
-            case "INSANE" -> 15000L;
-            case "FORTUNE", "SILK_TOUCH" -> 30000L;
+            case "LOW" -> 100L;
+            case "MEDIUM" -> 2000L;
+            case "INSANE" -> 5000L;
+            case "FORTUNE", "SILK_TOUCH" -> 10000L;
             default -> 0L;
         })) {
             return 0.1f;
@@ -152,7 +152,7 @@ public class vajraItem extends DrillItem {
         return switch (energyMode) {
             case "LOW" -> 10.0f;
             case "MEDIUM" -> 50.0f;
-            case "INSANE", "FORTUNE", "SILK_TOUCH" -> 500.0f;
+            case "INSANE", "FORTUNE", "SILK_TOUCH" -> 5000.0f;
             default -> super.getMiningSpeedMultiplier(stack, state);
         };
     }
