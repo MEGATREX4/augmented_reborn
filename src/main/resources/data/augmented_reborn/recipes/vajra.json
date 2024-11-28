@@ -1,0 +1,29 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    " I ",
+    "LCL",
+    "POP"
+  ],
+  "key": {
+    "I": {
+      "item": "techreborn:iridium_alloy_plate"
+    },
+    "L": {
+      "item": "techreborn:lapotronic_orb"
+    },
+    "C": {
+      "item": "techreborn:nak_coolant_cell_360k"
+    },
+    "P": {
+      "item": "techreborn:iridium_alloy_plate"
+    },
+    "O": {
+      "item": "techreborn:omni_tool"
+    }
+  },
+  "result": {
+    "item": "augmented_reborn:vajra",
+    "count": 1
+  }
+}
