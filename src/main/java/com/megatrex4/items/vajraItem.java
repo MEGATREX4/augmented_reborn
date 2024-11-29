@@ -15,9 +15,7 @@ import net.minecraft.entity.attribute.EntityAttributeModifier;
 import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.ToolMaterial;
+import net.minecraft.item.*;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtInt;
 import net.minecraft.nbt.NbtList;
@@ -33,23 +31,23 @@ import org.jetbrains.annotations.Nullable;
 import reborncore.common.powerSystem.RcEnergyItem;
 import reborncore.common.powerSystem.RcEnergyTier;
 import reborncore.common.util.ItemUtils;
+import team.reborn.energy.api.base.SimpleBatteryItem;
 import techreborn.init.TRToolMaterials;
 import techreborn.items.tool.DrillItem;
 import techreborn.items.tool.MiningLevel;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 public class vajraItem extends DrillItem {
 
 
-    // Define the fortune level (V for 5)
-    public static final int FORTUNE_LEVEL = 5;
+    private final RcEnergyTier tier;
+
     // Constants for modes
     private static final String ENERGY_MODE_KEY = "EnergyMode";
     private static final String[] ENERGY_MODES = {"LOW", "MEDIUM", "INSANE", "FORTUNE", "SILK_TOUCH"};
-
-    private final RcEnergyTier tier;
 
     public vajraItem(RcEnergyTier tier) {
         super(
@@ -61,8 +59,13 @@ public class vajraItem extends DrillItem {
                 0.1F,                             // Unpowered mining speed
                 MiningLevel.DIAMOND               // Mining level
         );
-        this.tier = tier;
+        this.tier = tier; // Assign RcEnergyTier
     }
+
+    public static final long ENERGY_REQUIRED_FOR_ATTACK = 1500L;
+    public static final float BIG_DAMAGE = 40.0F;
+    public static final float SMALL_DAMAGE = 5.0F;
+    public static final int FORTUNE_LEVEL = 5;
 
     private static final Map<String, Long> MODE_VALUES = Map.of(
             "LOW", 1000L,
@@ -182,7 +185,7 @@ public class vajraItem extends DrillItem {
 
         long energyRequired = MODE_VALUES.getOrDefault(energyMode, 0L);
         if (!hasSufficientEnergy(stack, energyRequired)) {
-            return 0.1f; // Unpowered mining speed
+            return 0.3f; // Unpowered mining speed
         }
 
         return MINING_SPEED_VALUES.getOrDefault(energyMode, super.getMiningSpeedMultiplier(stack, state));
@@ -209,7 +212,7 @@ public class vajraItem extends DrillItem {
     @Override
     public void appendTooltip(ItemStack stack, @Nullable World world, List<Text> tooltip, TooltipContext context) {
         String energyMode = getEnergyMode(stack);
-        String damage = String.valueOf(hasSufficientEnergy(stack, 1500) ? 40.0F : 5.0F);
+        String damage = String.valueOf(hasSufficientEnergy(stack, ENERGY_REQUIRED_FOR_ATTACK) ? BIG_DAMAGE : SMALL_DAMAGE);
 
         // Add tooltip for energy mode with "Mode" in regular color and mode name colored
         tooltip.add(Text.translatable("item.augmented_reborn.vajra.mode")
@@ -236,7 +239,7 @@ public class vajraItem extends DrillItem {
 
 
     /**
-     * Converts an integer to a Roman numeral using a modular system.
+     * Converts an integer to a Roman numeral.
      *
      * @param number The integer to convert.
      * @return The Roman numeral as a string.
@@ -246,27 +249,17 @@ public class vajraItem extends DrillItem {
             throw new IllegalArgumentException("Number out of range (must be 1-3999)");
         }
 
-        // Roman numeral mapping in modular notation
-        String[][] romanModules = {
-                {"", "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX"},  // Units
-                {"", "X", "XX", "XXX", "XL", "L", "LX", "LXX", "LXXX", "XC"}, // Tens
-                {"", "C", "CC", "CCC", "CD", "D", "DC", "DCC", "DCCC", "CM"}, // Hundreds
-                {"", "M", "MM", "MMM"}                                       // Thousands
-        };
+        String[] thousands = {"", "M", "MM", "MMM"};
+        String[] hundreds = {"", "C", "CC", "CCC", "CD", "D", "DC", "DCC", "DCCC", "CM"};
+        String[] tens = {"", "X", "XX", "XXX", "XL", "L", "LX", "LXX", "LXXX", "XC"};
+        String[] units = {"", "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX"};
 
-        StringBuilder roman = new StringBuilder();
-        int place = 0;
-
-        // Process number modularly
-        while (number > 0) {
-            int digit = number % 10;
-            roman.insert(0, romanModules[place][digit]); // Insert corresponding Roman numeral part
-            number /= 10;
-            place++;
-        }
-
-        return roman.toString();
+        return thousands[number / 1000] +
+               hundreds[(number % 1000) / 100] +
+               tens[(number % 100) / 10] +
+               units[number % 10];
     }
+
 
 
 
@@ -283,8 +276,8 @@ public class vajraItem extends DrillItem {
             target.damage(playerDamageSource, damage);
 
             // Consume energy if the attack is powered
-            if (damage > 5.0F) { // Powered damage
-                tryUseEnergy(stack, 1500);
+            if (damage > SMALL_DAMAGE) { // Powered damage
+                tryUseEnergy(stack, ENERGY_REQUIRED_FOR_ATTACK);
             }
         }
         return super.postHit(stack, target, attacker);
@@ -357,13 +350,21 @@ public class vajraItem extends DrillItem {
         return ItemUtils.getColorForDurabilityBar(stack);
     }
 
-    private boolean hasSufficientEnergy(ItemStack stack, long energyRequired) {
-        return getStoredEnergy(stack) >= energyRequired;
+    private boolean hasSufficientEnergy(@Nullable ItemStack stack, long energyRequired) {
+        if (stack == null || !stack.hasNbt()) {
+            return false; // Safely handle null or missing NBT
+        }
+
+        // Use the static method `getStoredEnergyUnchecked` to retrieve energy.
+        long storedEnergy = SimpleBatteryItem.getStoredEnergyUnchecked(stack);
+        return storedEnergy >= energyRequired;
     }
 
-
-    public float getDamage(ItemStack stack) {
-        return hasSufficientEnergy(stack, 1500) ? 40.0F : 5.0F;
+    public float getDamage(@Nullable ItemStack stack) {
+        if (stack == null || !hasSufficientEnergy(stack, ENERGY_REQUIRED_FOR_ATTACK)) {
+            return SMALL_DAMAGE; // Default unpowered damage
+        }
+        return BIG_DAMAGE; // Powered damage
     }
 
 }
