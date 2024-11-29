@@ -8,7 +8,8 @@
 		"PlayerEntityMixin",
 		"NanoSuitItemActivatableMixin",
 		"QuantumSuitItemActivatableMixin",
-		"QuantumSuitItemMixin"
+		"QuantumSuitItemMixin",
+		"BlockDropMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1

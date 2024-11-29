@@ -2,6 +2,7 @@ package com.megatrex4.items;
 
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Multimap;
+import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.item.TooltipContext;
 import net.minecraft.enchantment.Enchantment;
@@ -18,7 +19,9 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ToolMaterial;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtInt;
 import net.minecraft.nbt.NbtList;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
@@ -35,6 +38,7 @@ import techreborn.items.tool.DrillItem;
 import techreborn.items.tool.MiningLevel;
 
 import java.util.List;
+import java.util.Map;
 
 public class vajraItem extends DrillItem {
 
@@ -58,17 +62,52 @@ public class vajraItem extends DrillItem {
         this.tier = tier;
     }
 
-    // Helper to get current energy mode
+    private static final Map<String, Long> MODE_VALUES = Map.of(
+            "LOW", 1000L,
+            "MEDIUM", 5000L,
+            "INSANE", 10000L,
+            "FORTUNE", 15000L,
+            "SILK_TOUCH", 15000L
+    );
+
+    private static final Map<String, Float> MINING_SPEED_VALUES = Map.of(
+            "LOW", 12.0f,
+            "MEDIUM", 50.0f,
+            "INSANE", 5000.0f,
+            "FORTUNE", 5000.0f,
+            "SILK_TOUCH", 5000.0f
+    );
+
     public static String getEnergyMode(ItemStack stack) {
         NbtCompound nbt = stack.getOrCreateNbt();
         return nbt.getString(ENERGY_MODE_KEY).isEmpty() ? "MEDIUM" : nbt.getString(ENERGY_MODE_KEY);
     }
-
-    // Helper to set energy mode
     public static void setEnergyMode(ItemStack stack, String mode) {
         NbtCompound nbt = stack.getOrCreateNbt();
         nbt.putString(ENERGY_MODE_KEY, mode);
+
+        if ("FORTUNE".equals(mode)) {
+            NbtCompound enchantment = new NbtCompound();
+            enchantment.putString("id", "minecraft:fortune");
+            enchantment.putInt("lvl", 5);
+
+            NbtList enchantments = new NbtList();
+            enchantments.add(enchantment);
+            nbt.put("Enchantments", enchantments);
+
+            nbt.put("HideFlags", NbtInt.of(1));
+        } else {
+            nbt.remove("Enchantments");
+            nbt.remove("HideFlags");
+        }
     }
+
+    @Override
+    public boolean hasGlint(ItemStack stack) {
+        String energyMode = getEnergyMode(stack);
+        return "FORTUNE".equals(energyMode) && false;
+    }
+
 
     // Helper to cycle energy modes
     public static void cycleEnergyMode(ItemStack stack) {
@@ -76,7 +115,6 @@ public class vajraItem extends DrillItem {
         int index = (indexOf(ENERGY_MODES, currentMode) + 1) % ENERGY_MODES.length;
         String newMode = ENERGY_MODES[index];
         setEnergyMode(stack, newMode);
-        updateEnchantmentForMode(stack, newMode); // Update enchantments immediately
     }
 
 
@@ -135,83 +173,17 @@ public class vajraItem extends DrillItem {
         return false; // Prevents the item from being enchanted
     }
 
+
     @Override
     public float getMiningSpeedMultiplier(ItemStack stack, BlockState state) {
         String energyMode = getEnergyMode(stack);
 
-        if (!hasSufficientEnergy(stack, switch (energyMode) {
-            case "LOW" -> 100L;
-            case "MEDIUM" -> 2000L;
-            case "INSANE" -> 5000L;
-            case "FORTUNE", "SILK_TOUCH" -> 10000L;
-            default -> 0L;
-        })) {
-            return 0.1f;
+        long energyRequired = MODE_VALUES.getOrDefault(energyMode, 0L);
+        if (!hasSufficientEnergy(stack, energyRequired)) {
+            return 0.1f; // Unpowered mining speed
         }
 
-        return switch (energyMode) {
-            case "LOW" -> 10.0f;
-            case "MEDIUM" -> 50.0f;
-            case "INSANE", "FORTUNE", "SILK_TOUCH" -> 5000.0f;
-            default -> super.getMiningSpeedMultiplier(stack, state);
-        };
-    }
-
-
-    private static void updateEnchantmentForMode(ItemStack stack, String mode) {
-        switch (mode) {
-            case "FORTUNE" -> {
-                removeEnchantment(stack, Enchantments.SILK_TOUCH);
-                applyEnchantment(stack, Enchantments.FORTUNE, 5);
-            }
-            case "SILK_TOUCH" -> {
-                removeEnchantment(stack, Enchantments.FORTUNE);
-                applyEnchantment(stack, Enchantments.SILK_TOUCH, 1);
-            }
-            default -> {
-                removeEnchantment(stack, Enchantments.FORTUNE);
-                removeEnchantment(stack, Enchantments.SILK_TOUCH);
-            }
-        }
-    }
-
-
-    // Helper to remove a specific enchantment
-    private static void removeEnchantment(ItemStack stack, Enchantment enchantment) {
-        NbtCompound nbt = stack.getOrCreateNbt();
-        if (nbt.contains("Enchantments")) {
-            NbtList enchantments = nbt.getList("Enchantments", 10);
-
-            for (int i = 0; i < enchantments.size(); i++) {
-                NbtCompound existingEnchantment = enchantments.getCompound(i);
-                if (existingEnchantment.getString("id").equals(EnchantmentHelper.getEnchantmentId(enchantment).toString())) {
-                    enchantments.remove(i);
-                    break;
-                }
-            }
-
-            nbt.put("Enchantments", enchantments);
-        }
-    }
-
-
-
-    private static void applyEnchantment(ItemStack stack, Enchantment enchantment, int level) {
-        NbtCompound nbt = stack.getOrCreateNbt();
-        NbtList enchantments = nbt.getList("Enchantments", 10);
-
-        for (int i = 0; i < enchantments.size(); i++) {
-            NbtCompound existingEnchantment = enchantments.getCompound(i);
-            if (existingEnchantment.getString("id").equals(EnchantmentHelper.getEnchantmentId(enchantment).toString())) {
-                return; // Enchantment already exists, do nothing
-            }
-        }
-
-        NbtCompound enchantmentNbt = new NbtCompound();
-        enchantmentNbt.putString("id", EnchantmentHelper.getEnchantmentId(enchantment).toString());
-        enchantmentNbt.putInt("lvl", level);
-        enchantments.add(enchantmentNbt);
-        nbt.put("Enchantments", enchantments);
+        return MINING_SPEED_VALUES.getOrDefault(energyMode, super.getMiningSpeedMultiplier(stack, state));
     }
 
     @Override
@@ -274,25 +246,32 @@ public class vajraItem extends DrillItem {
     @Override
     public boolean postMine(ItemStack stack, World world, BlockState state, BlockPos pos, LivingEntity entityLiving) {
         if (entityLiving instanceof PlayerEntity player) {
-            long energyUsed = switch (getEnergyMode(stack)) {
-                case "LOW" -> 1000L;
-                case "MEDIUM" -> 5000L;
-                case "INSANE" -> 15000L;
-                case "FORTUNE", "SILK_TOUCH" -> 30000L;
-                default -> 0L;
-            };
+            String energyMode = getEnergyMode(stack);
+            long energyRequired = MODE_VALUES.getOrDefault(energyMode, 0L);
 
-            if (!consumeEnergyForMining(stack, player, energyUsed)) {
+            // Consume energy for mining
+            if (!consumeEnergyForMining(stack, player, energyRequired)) {
                 return false;
             }
+
+            if (!world.isClient && "SILK_TOUCH".equals(energyMode)) {
+                // Apply Silk Touch logic
+                ItemStack silkTouchDrop = new ItemStack(state.getBlock().asItem());
+                Block.dropStack(world, pos, silkTouchDrop);
+            }
         }
-        return super.postMine(stack, world, state, pos, entityLiving);
+        return true;
     }
+
 
     private void displayEnergy(PlayerEntity player, ItemStack stack) {
         long remainingEnergy = getStoredEnergy(stack);
     }
 
+    @Override
+    public boolean canRepair(ItemStack stack, ItemStack ingredient) {
+        return false; // Prevents the item from being repaired in a grindstone
+    }
 
 
     // Energy item methods

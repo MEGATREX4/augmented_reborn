@@ -17,7 +17,7 @@ public class ActivateNanoHelmetPacket {
     public static void send(boolean activated) {
         PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
         buf.writeBoolean(activated);
-        LOGGER.info("Sending packet to server: [activated=" + activated + "]");
+//        LOGGER.info("Sending packet to server: [activated=" + activated + "]");
         ClientPlayNetworking.send(ID, buf); // Send the packet to the server
     }
 
