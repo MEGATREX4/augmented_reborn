@@ -7,8 +7,11 @@ import net.minecraft.client.item.TooltipContext;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.item.ArmorItem;
 import net.minecraft.item.ItemStack;
+import net.minecraft.registry.Registries;
+import net.minecraft.registry.Registry;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
+import net.minecraft.util.Identifier;
 import techreborn.items.armor.NanoSuitItem;
 import techreborn.items.armor.QuantumSuitItem;
 
@@ -24,23 +27,26 @@ public class TooltipEventListener {
     }
 
     private static void addTooltip(ItemStack stack, TooltipContext context, List<Text> tooltip) {
-        // Check if the item is an instance of ActivatableItem or its specific class
-        if (stack.getItem() instanceof ActivatableItem activatable && isHelmet(stack)) {
-            boolean isActivated = activatable.isActivated(stack);
-            tooltip.add(Text.translatable("item.augmented_reborn.night_vision.status")
-                    .append(" ")
-                    .append(Text.translatable("item.augmented_reborn.night_vision." + (isActivated ? "enabled" : "disabled"))
-                            .formatted(isActivated ? Formatting.GREEN : Formatting.RED)));
-        } else if (stack.getItem() instanceof NanoSuitItem || stack.getItem() instanceof QuantumSuitItem) {
-            tooltip.add(Text.translatable("item.augmented_reborn.night_vision.status")
-                    .append(" ")
-                    .append(Text.translatable("item.augmented_reborn.night_vision.disabled")
-                            .formatted(Formatting.RED))); // Default status
+        // Add tooltips only for techreborn:nano_helmet and techreborn:quantum_helmet
+        if (isTechRebornHelmet(stack, "techreborn:nano_helmet") || isTechRebornHelmet(stack, "techreborn:quantum_helmet")) {
+            if (stack.getItem() instanceof ActivatableItem activatable) {
+                boolean isActivated = activatable.isActivated(stack);
+                tooltip.add(Text.translatable("item.augmented_reborn.night_vision.status")
+                        .append(" ")
+                        .append(Text.translatable("item.augmented_reborn.night_vision." + (isActivated ? "enabled" : "disabled"))
+                                .formatted(isActivated ? Formatting.GREEN : Formatting.RED)));
+            } else {
+                tooltip.add(Text.translatable("item.augmented_reborn.night_vision.status")
+                        .append(" ")
+                        .append(Text.translatable("item.augmented_reborn.night_vision.disabled")
+                                .formatted(Formatting.RED)));
+            }
         }
     }
 
-    private static boolean isHelmet(ItemStack stack) {
-        // Check if the item is an ArmorItem and is for the head slot
-        return stack.getItem() instanceof ArmorItem armorItem && armorItem.getSlotType() == EquipmentSlot.HEAD;
+    private static boolean isTechRebornHelmet(ItemStack stack, String helmetId) {
+        // Check if the item's ID matches the given helmet ID
+        Identifier itemId = Registries.ITEM.getId(stack.getItem());
+        return itemId.toString().equals(helmetId);
     }
 }

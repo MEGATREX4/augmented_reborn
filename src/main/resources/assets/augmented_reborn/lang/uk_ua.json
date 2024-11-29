@@ -10,11 +10,11 @@
   "item.augmented_reborn.vajra.mode.silk_touch": "Шовковий Дотик",
   "item.augmented_reborn.vajra.tooltip.damage": "Шкода: %s",
   "category.augmented_reborn.keys": "Клавіші Augmented Reborn",
-  "item.augmented_reborn.nanosuit.night_vision.status": "Нічний зір:",
-  "item.augmented_reborn.nanosuit.night_vision.status_message": "Нічний зір:",
   "item.augmented_reborn.vajra.tooltip.mode": "Ваджра",
 
   "key.augmented_reborn.toggle_night_vision": "Переключити нічний зір",
-  "item.augmented_reborn.nanosuit.night_vision.enabled": "Включений",
-  "item.augmented_reborn.nanosuit.night_vision.disabled": "Виключений"
+  "item.augmented_reborn.night_vision.status": "Нічний зір:",
+  "item.augmented_reborn.night_vision.status_message": "Нічний зір:",
+  "item.augmented_reborn.night_vision.enabled": "Включений",
+  "item.augmented_reborn.night_vision.disabled": "Виключений"
 }

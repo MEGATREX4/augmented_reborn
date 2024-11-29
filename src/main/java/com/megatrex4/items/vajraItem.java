@@ -43,6 +43,8 @@ import java.util.Map;
 public class vajraItem extends DrillItem {
 
 
+    // Define the fortune level (V for 5)
+    public static final int FORTUNE_LEVEL = 5;
     // Constants for modes
     private static final String ENERGY_MODE_KEY = "EnergyMode";
     private static final String[] ENERGY_MODES = {"LOW", "MEDIUM", "INSANE", "FORTUNE", "SILK_TOUCH"};
@@ -89,7 +91,7 @@ public class vajraItem extends DrillItem {
         if ("FORTUNE".equals(mode)) {
             NbtCompound enchantment = new NbtCompound();
             enchantment.putString("id", "minecraft:fortune");
-            enchantment.putInt("lvl", 5);
+            enchantment.putInt("lvl", FORTUNE_LEVEL);
 
             NbtList enchantments = new NbtList();
             enchantments.add(enchantment);
@@ -218,8 +220,53 @@ public class vajraItem extends DrillItem {
         // Add tooltip for damage in red
         tooltip.add(Text.translatable("item.augmented_reborn.vajra.tooltip.damage", damage)
                 .styled(style -> style.withColor(Formatting.RED)));
+
+        // Add gray italic tooltip for SILK_TOUCH or FORTUNE mode
+        if ("SILK_TOUCH".equals(energyMode)) {
+            tooltip.add(Text.translatable("enchantment.minecraft.silk_touch")
+                    .styled(style -> style.withColor(Formatting.GRAY).withItalic(true)));
+        } else if ("FORTUNE".equals(energyMode)) {
+            String fortuneRoman = toRoman(FORTUNE_LEVEL);
+            tooltip.add(Text.translatable("enchantment.minecraft.fortune")
+                    .append(" ")
+                    .append(Text.literal(fortuneRoman))
+                    .styled(style -> style.withColor(Formatting.GRAY).withItalic(true)));
+        }
     }
 
+
+    /**
+     * Converts an integer to a Roman numeral using a modular system.
+     *
+     * @param number The integer to convert.
+     * @return The Roman numeral as a string.
+     */
+    private String toRoman(int number) {
+        if (number <= 0 || number > 3999) {
+            throw new IllegalArgumentException("Number out of range (must be 1-3999)");
+        }
+
+        // Roman numeral mapping in modular notation
+        String[][] romanModules = {
+                {"", "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX"},  // Units
+                {"", "X", "XX", "XXX", "XL", "L", "LX", "LXX", "LXXX", "XC"}, // Tens
+                {"", "C", "CC", "CCC", "CD", "D", "DC", "DCC", "DCCC", "CM"}, // Hundreds
+                {"", "M", "MM", "MMM"}                                       // Thousands
+        };
+
+        StringBuilder roman = new StringBuilder();
+        int place = 0;
+
+        // Process number modularly
+        while (number > 0) {
+            int digit = number % 10;
+            roman.insert(0, romanModules[place][digit]); // Insert corresponding Roman numeral part
+            number /= 10;
+            place++;
+        }
+
+        return roman.toString();
+    }
 
 
 
