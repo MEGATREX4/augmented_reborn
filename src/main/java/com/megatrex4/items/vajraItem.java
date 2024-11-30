@@ -91,28 +91,28 @@ public class vajraItem extends DrillItem {
         NbtCompound nbt = stack.getOrCreateNbt();
         nbt.putString(ENERGY_MODE_KEY, mode);
 
-        if ("FORTUNE".equals(mode)) {
-            NbtCompound enchantment = new NbtCompound();
-            enchantment.putString("id", "minecraft:fortune");
-            enchantment.putInt("lvl", FORTUNE_LEVEL);
-
-            NbtList enchantments = new NbtList();
-            enchantments.add(enchantment);
-            nbt.put("Enchantments", enchantments);
-
-            nbt.put("HideFlags", NbtInt.of(1));
+        if ("SILK_TOUCH".equals(mode)) {
+            stack.addEnchantment(Enchantments.SILK_TOUCH, 1); // Apply Silk Touch
         } else {
-            nbt.remove("Enchantments");
-            nbt.remove("HideFlags");
+            Map<Enchantment, Integer> enchantments = EnchantmentHelper.get(stack);
+            enchantments.remove(Enchantments.SILK_TOUCH); // Remove Silk Touch if not in this mode
+            EnchantmentHelper.set(enchantments, stack);
+        }
+
+        if ("FORTUNE".equals(mode)) {
+            stack.addEnchantment(Enchantments.FORTUNE, FORTUNE_LEVEL); // Apply Fortune
+        } else {
+            Map<Enchantment, Integer> enchantments = EnchantmentHelper.get(stack);
+            enchantments.remove(Enchantments.FORTUNE); // Remove Fortune if not in this mode
+            EnchantmentHelper.set(enchantments, stack);
         }
     }
 
+
     @Override
     public boolean hasGlint(ItemStack stack) {
-        String energyMode = getEnergyMode(stack);
-        return "FORTUNE".equals(energyMode) && false;
+        return false;
     }
-
 
     // Helper to cycle energy modes
     public static void cycleEnergyMode(ItemStack stack) {
@@ -121,7 +121,6 @@ public class vajraItem extends DrillItem {
         String newMode = ENERGY_MODES[index];
         setEnergyMode(stack, newMode);
     }
-
 
     private static int indexOf(String[] array, String value) {
         for (int i = 0; i < array.length; i++) {
@@ -142,9 +141,10 @@ public class vajraItem extends DrillItem {
                         Text.translatable("item.augmented_reborn.vajra.mode." + energyMode.toLowerCase())
                                 .styled(style -> style.withColor(getModeColor(energyMode)))), true);
             }
+            return TypedActionResult.success(stack);
+        } else {
+            return TypedActionResult.pass(stack);
         }
-
-        return TypedActionResult.success(stack);
     }
 
 
@@ -212,7 +212,6 @@ public class vajraItem extends DrillItem {
     @Override
     public void appendTooltip(ItemStack stack, @Nullable World world, List<Text> tooltip, TooltipContext context) {
         String energyMode = getEnergyMode(stack);
-        String damage = String.valueOf(hasSufficientEnergy(stack, ENERGY_REQUIRED_FOR_ATTACK) ? BIG_DAMAGE : SMALL_DAMAGE);
 
         // Add tooltip for energy mode with "Mode" in regular color and mode name colored
         tooltip.add(Text.translatable("item.augmented_reborn.vajra.mode")
@@ -220,11 +219,7 @@ public class vajraItem extends DrillItem {
                 .append(Text.translatable("item.augmented_reborn.vajra.mode." + energyMode.toLowerCase())
                         .styled(style -> style.withColor(getModeColor(energyMode)))));
 
-        // Add tooltip for damage in red
-        tooltip.add(Text.translatable("item.augmented_reborn.vajra.tooltip.damage", damage)
-                .styled(style -> style.withColor(Formatting.RED)));
-
-        // Add gray italic tooltip for SILK_TOUCH or FORTUNE mode
+        // Display appropriate enchantment tooltip
         if ("SILK_TOUCH".equals(energyMode)) {
             tooltip.add(Text.translatable("enchantment.minecraft.silk_touch")
                     .styled(style -> style.withColor(Formatting.GRAY).withItalic(true)));
@@ -236,6 +231,7 @@ public class vajraItem extends DrillItem {
                     .styled(style -> style.withColor(Formatting.GRAY).withItalic(true)));
         }
     }
+
 
 
     /**
@@ -293,15 +289,10 @@ public class vajraItem extends DrillItem {
             if (!consumeEnergyForMining(stack, player, energyRequired)) {
                 return false;
             }
-
-            if (!world.isClient && "SILK_TOUCH".equals(energyMode)) {
-                // Apply Silk Touch logic
-                ItemStack silkTouchDrop = new ItemStack(state.getBlock().asItem());
-                Block.dropStack(world, pos, silkTouchDrop);
-            }
         }
-        return true;
+        return super.postMine(stack, world, state, pos, entityLiving);
     }
+
 
 
     private void displayEnergy(PlayerEntity player, ItemStack stack) {

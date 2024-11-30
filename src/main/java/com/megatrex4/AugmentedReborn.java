@@ -30,10 +30,7 @@ public class AugmentedReborn implements ModInitializer {
 	public void onInitialize() {
 		ItemRegistry.ItemRegistry();
 		ItemGroupRegistry.ItemGroupRegistry();
-		KeyBindingRegistry.registerKeybindings();
 		ActivateNanoHelmetPacket.register();
-
-		TooltipEventListener.register();
 
 		CUSTOM_GRINDSTONE_HANDLER = ScreenHandlerRegistry.registerSimple(
 				new Identifier(MOD_ID, "custom_grindstone"),

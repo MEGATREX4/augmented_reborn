@@ -16,6 +16,9 @@
 	"entrypoints": {
 		"main": [
 			"com.megatrex4.AugmentedReborn"
+		],
+		"client": [
+			"com.megatrex4.AugmentedRebornClient"
 		]
 	},
 	"mixins": [
