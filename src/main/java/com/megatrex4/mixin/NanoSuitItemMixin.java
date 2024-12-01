@@ -6,6 +6,7 @@ import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -17,8 +18,11 @@ public abstract class NanoSuitItemMixin {
 
     private static final long ENERGY_COST = TechRebornConfig.nanoSuitNightVisionCost;
 
-    @Inject(method = "tickArmor", at = @At("HEAD"), cancellable = true)
-    private void tickArmor(ItemStack stack, PlayerEntity playerEntity, CallbackInfo info) {
+    /**
+     * This method will completely overwrite the original tickArmor method
+     */
+    @Overwrite
+    public void tickArmor(ItemStack stack, PlayerEntity playerEntity) {
         if (!(stack.getItem() instanceof ActivatableItem activatable) || !activatable.isActivated(stack)) {
             removeNightVision(playerEntity);
             return;

@@ -6,6 +6,7 @@ import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -15,8 +16,12 @@ import techreborn.items.armor.QuantumSuitItem;
 @Mixin(QuantumSuitItem.class)
 public abstract class QuantumSuitItemMixin {
 
-    @Inject(method = "tickArmor", at = @At("HEAD"), cancellable = true)
-    private void tickArmor(ItemStack stack, PlayerEntity playerEntity, CallbackInfo info) {
+    /**
+     * @author MEGATREX4
+     * @reason fixing bugs on modpack
+     */
+    @Overwrite
+    public void tickArmor(ItemStack stack, PlayerEntity playerEntity) {
         QuantumSuitItem item = (QuantumSuitItem) (Object) this;
 
         switch (item.getSlotType()) {
