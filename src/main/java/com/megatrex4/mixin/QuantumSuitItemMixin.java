@@ -15,6 +15,7 @@ import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.collection.DefaultedList;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.injection.At;
@@ -109,8 +110,22 @@ public abstract class QuantumSuitItemMixin {
 
     @Inject(method = "onRemoved", at = @At("HEAD"))
     private void onUnequipInject(PlayerEntity playerEntity, CallbackInfo ci) {
-        disableFlying(playerEntity);
+        // Capture the armor inventory state before the item is removed
+        DefaultedList<ItemStack> previousArmorInventory = playerEntity.getInventory().armor;
+
+        // Check if the chestplate is being removed
+        ItemStack chestplate = previousArmorInventory.get(2); // Index 2 is for the chestplate
+        if (!(chestplate.getItem() instanceof QuantumSuitItem)) {
+            disableFlying(playerEntity);
+        }
+
+        // Check if the helmet is being removed
+        ItemStack helmet = previousArmorInventory.get(3); // Index 3 is for the helmet
+        if (!(helmet.getItem() instanceof QuantumSuitItem)) {
+            removeNightVision(playerEntity);
+        }
     }
+
 
     private static boolean isAllowingFlight(PlayerEntity player) {
         return TECHREBORN_QUANTUM_ARMOR_ABILITY_SOURCE.grants(player, VanillaAbilities.ALLOW_FLYING) &&

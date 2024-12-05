@@ -33,19 +33,18 @@ public class TooltipEventListener {
                 boolean isActivated = activatable.isActivated(stack);
                 tooltip.add(Text.translatable("item.augmented_reborn.night_vision.status")
                         .append(" ")
-                        .append(Text.translatable("item.augmented_reborn." + (isActivated ? "enabled" : "disabled"))
+                        .append(Text.translatable("hud.augmented_reborn." + (isActivated ? "enabled" : "disabled"))
                                 .formatted(isActivated ? Formatting.GREEN : Formatting.RED)));
             } else {
                 tooltip.add(Text.translatable("item.augmented_reborn.night_vision.status")
                         .append(" ")
-                        .append(Text.translatable("item.augmented_reborn.disabled")
+                        .append(Text.translatable("hud.augmented_reborn.disabled")
                                 .formatted(Formatting.RED)));
             }
         }
     }
 
     private static boolean isTechRebornHelmet(ItemStack stack, String helmetId) {
-        // Check if the item's ID matches the given helmet ID
         Identifier itemId = Registries.ITEM.getId(stack.getItem());
         return itemId.toString().equals(helmetId);
     }

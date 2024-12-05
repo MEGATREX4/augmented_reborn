@@ -76,7 +76,7 @@ public class vajraItem extends DrillItem {
     public static final long ENERGY_REQUIRED_FOR_ATTACK = 1500L;
     public static final float BIG_DAMAGE = 40.0F;
     public static final float SMALL_DAMAGE = 5.0F;
-    public static final int FORTUNE_LEVEL = 5;
+    public static final int FORTUNE_LEVEL = 8;
 
     private static final Map<String, Long> MODE_VALUES = Map.of(
             "LOW", 1000L,
@@ -244,7 +244,7 @@ public class vajraItem extends DrillItem {
             tooltip.add(Text.translatable("enchantment.minecraft.silk_touch")
                     .styled(style -> style.withColor(Formatting.GRAY).withItalic(true)));
         } else if ("FORTUNE".equals(energyMode)) {
-            String fortuneRoman = toRoman(FORTUNE_LEVEL);
+            String fortuneRoman = toRoman(FORTUNE_LEVEL-4);
             tooltip.add(Text.translatable("enchantment.minecraft.fortune")
                     .append(" ")
                     .append(Text.literal(fortuneRoman))
@@ -264,7 +264,6 @@ public class vajraItem extends DrillItem {
                 .append(Text.translatable("attribute.modifier.plus.0", damage,
                                 Text.translatable("attribute.name.generic.attack_damage"))
                         .setStyle(Style.EMPTY.withColor(Formatting.DARK_GREEN))));
-        tooltip.add(Text.empty());
     }
 
 
