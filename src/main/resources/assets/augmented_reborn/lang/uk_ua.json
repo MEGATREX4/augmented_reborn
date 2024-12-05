@@ -19,6 +19,5 @@
   "hud.augmented_reborn.status": "Квантовий нагрудник",
   "hud.augmented_reborn.energy": "Енергія: %s",
 
-  "key.augmented_reborn.toggle_flight": "Переключити квантовий нагрудник",
-  "item.augmented_reborn.flight.status": "Нагрудник: "
+  "key.augmented_reborn.toggle_flight": "Переключити квантовий нагрудник"
 }
