@@ -3,24 +3,26 @@ package com.megatrex4.mixin;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import com.megatrex4.items.ActivatableItem;
+import io.github.ladysnake.pal.AbilitySource;
+import io.github.ladysnake.pal.Pal;
+import io.github.ladysnake.pal.VanillaAbilities;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.attribute.EntityAttribute;
 import net.minecraft.entity.attribute.EntityAttributeModifier;
 import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
-import net.minecraft.entity.player.PlayerAbilities;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
-import net.minecraft.world.GameRules;
+import net.minecraft.util.Identifier;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
-import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import techreborn.config.TechRebornConfig;
 import techreborn.items.armor.QuantumSuitItem;
+import techreborn.items.armor.TREnergyArmourItem;
 
 import java.util.UUID;
 
@@ -34,10 +36,11 @@ public abstract class QuantumSuitItemMixin {
      */
     @Overwrite
     public Multimap<EntityAttribute, EntityAttributeModifier> getAttributeModifiers(EquipmentSlot slot) {
-        // Return an empty HashMultimap to override all default attributes.
         return HashMultimap.create();
     }
 
+    private static final Identifier QUANTUM_ARMOR_FLIGHT_ABILITY_SOURCE_ID = new Identifier("techreborn", "quantum_armor");
+    private static final AbilitySource TECHREBORN_QUANTUM_ARMOR_ABILITY_SOURCE = Pal.getAbilitySource(QUANTUM_ARMOR_FLIGHT_ABILITY_SOURCE_ID, AbilitySource.CONSUMABLE);
 
     private static final UUID LEGGINGS_SPEED_BOOST_UUID = UUID.fromString("123e4567-e89b-12d3-a456-426614174000"); // Unique ID for the speed boost modifier
 
@@ -54,7 +57,7 @@ public abstract class QuantumSuitItemMixin {
                 handleHelmet(stack, playerEntity, item);
                 break;
             case CHEST:
-                enableFlight(stack, playerEntity, item);
+                flightTick(stack, playerEntity, item);
                 break;
             case LEGS:
                 handleLeggings(stack, playerEntity, item);
@@ -81,32 +84,61 @@ public abstract class QuantumSuitItemMixin {
         }
     }
 
-    private void enableFlight(ItemStack stack, PlayerEntity player, QuantumSuitItem item) {
-        if (stack.getItem() instanceof ActivatableItem activatable && activatable.isActivated(stack)) {
-            ItemStack chestItem = player.getEquippedStack(EquipmentSlot.CHEST);
-
-            boolean isAlreadyFlying = player.getAbilities().allowFlying;
-
-            if (item.getStoredEnergy(stack) > TechRebornConfig.quantumSuitFlyingCost) {
-                if (!isAlreadyFlying) {
-                    player.getAbilities().allowFlying = true;
-                    player.sendAbilitiesUpdate();
+    // Correct method signature to match TREnergyArmourItem
+    private static void flightTick(ItemStack stack, PlayerEntity player, TREnergyArmourItem item) {
+        // Only execute on the server side
+        if (!player.getWorld().isClient()) {
+            if (stack.getItem() instanceof ActivatableItem activatable && activatable.isActivated(stack)) {
+                // Ensure enough energy is available for flight
+                if (item.getStoredEnergy(stack) > TechRebornConfig.quantumSuitFlyingCost) {
+                    allowFlying(player);
+                } else {
+                    disableFlying(player);
                 }
 
-                if (player.getAbilities().flying) {
-                    item.tryUseEnergy(chestItem, TechRebornConfig.quantumSuitFlyingCost);
+                if (!hasIndirectFlight(player) && isAllowingFlight(player)) {
+                    // Use energy for flight
+                    item.tryUseEnergy(stack, TechRebornConfig.quantumSuitFlyingCost);
                 }
             } else {
-                disableFlight(player);
+                // Disable flight if config disables it
+                disableFlying(player);
             }
-
-            if (player.isOnFire() && item.tryUseEnergy(stack, TechRebornConfig.fireExtinguishCost)) {
-                player.extinguish();
-            }
-        } else {
-            disableFlight(player);
         }
     }
+
+    @Inject(method = "onRemoved", at = @At("HEAD"))
+    private void onUnequipInject(PlayerEntity playerEntity, CallbackInfo ci) {
+        disableFlying(playerEntity);
+    }
+
+    private static boolean isAllowingFlight(PlayerEntity player) {
+        return TECHREBORN_QUANTUM_ARMOR_ABILITY_SOURCE.grants(player, VanillaAbilities.ALLOW_FLYING) &&
+                TECHREBORN_QUANTUM_ARMOR_ABILITY_SOURCE.isActivelyGranting(player, VanillaAbilities.ALLOW_FLYING);
+    }
+
+    // Enable flight for the player
+    private static void allowFlying(PlayerEntity playerEntity) {
+        if (!playerEntity.getWorld().isClient()) {
+            TECHREBORN_QUANTUM_ARMOR_ABILITY_SOURCE.grantTo(playerEntity, VanillaAbilities.ALLOW_FLYING);
+            playerEntity.setOnGround(true);
+        }
+    }
+
+    // Disable flight for the player
+    private static void disableFlying(PlayerEntity playerEntity) {
+        if (!playerEntity.getWorld().isClient()) {
+            // PAL revokes flight ability from the player
+            TECHREBORN_QUANTUM_ARMOR_ABILITY_SOURCE.revokeFrom(playerEntity, VanillaAbilities.ALLOW_FLYING);
+        }
+    }
+
+    private static boolean hasIndirectFlight(PlayerEntity player) {
+        return VanillaAbilities.CREATIVE_MODE.isEnabledFor(player) || player.isCreative() || player.isSpectator();
+    }
+
+
+
 
 
     private void handleLeggings(ItemStack stack, PlayerEntity player, QuantumSuitItem item) {
@@ -119,7 +151,7 @@ public abstract class QuantumSuitItemMixin {
                     EntityAttributeModifier speedBoostModifier = new EntityAttributeModifier(
                             LEGGINGS_SPEED_BOOST_UUID,
                             "Quantum Leggings Speed Boost",
-                            1.5,
+                            1.3,
                             EntityAttributeModifier.Operation.MULTIPLY_BASE
                     );
                     player.getAttributes()
@@ -152,17 +184,4 @@ public abstract class QuantumSuitItemMixin {
             player.removeStatusEffect(StatusEffects.NIGHT_VISION);
         }
     }
-
-    private void disableFlight(PlayerEntity player) {
-        // Get the player's abilities through the public method
-        PlayerAbilities abilities = player.getAbilities();
-
-        // Disable flight if the player is not in creative mode and flight is enabled by the Quantum Suit
-        if (!player.isCreative() && abilities.allowFlying) {
-            abilities.flying = false;
-            abilities.allowFlying = false;
-            player.sendAbilitiesUpdate();  // Update the player's flight state
-        }
-    }
-
 }

@@ -11,9 +11,8 @@ base {
 }
 
 repositories {
-	maven {
-		url "https://cursemaven.com"
-	}
+	maven { url "https://cursemaven.com" }
+	maven { url "https://maven.ladysnake.org/releases" }
 }
 
 dependencies {
@@ -27,6 +26,8 @@ dependencies {
 
 	modImplementation "curse.maven:reborncore-237903:4708961"
 	modImplementation "curse.maven:techreborn-233564:4708962"
+
+	modImplementation include("io.github.ladysnake:PlayerAbilityLib:${pal_version}")
 
 	include(modApi("teamreborn:energy:${project.energy_version}")) {
 		transitive = false
