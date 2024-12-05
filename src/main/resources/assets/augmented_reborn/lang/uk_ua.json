@@ -12,10 +12,12 @@
   "item.augmented_reborn.vajra.tooltip.mode": "Ваджра",
 
   "key.augmented_reborn.toggle_night_vision": "Переключити нічний зір",
-  "item.augmented_reborn.night_vision.status": "Нічний зір: ",
-  "item.augmented_reborn.night_vision.status_message": "Нічний зір: ",
-  "item.augmented_reborn.enabled": "Включений",
-  "item.augmented_reborn.disabled": "Виключений",
+  "item.augmented_reborn.night_vision.status": "Нічний зір:",
+  "item.augmented_reborn.night_vision.status_message": "Нічний зір:",
+  "hud.augmented_reborn.enabled": "Включений",
+  "hud.augmented_reborn.disabled": "Виключений",
+  "hud.augmented_reborn.status": "Квантовий нагрудник",
+  "hud.augmented_reborn.energy": "Енергія: %s",
 
   "key.augmented_reborn.toggle_flight": "Переключити квантовий нагрудник",
   "item.augmented_reborn.flight.status": "Нагрудник: "

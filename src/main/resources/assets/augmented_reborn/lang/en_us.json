@@ -20,8 +20,11 @@
   "key.augmented_reborn.toggle_flight": "Quantum Chestplate",
   "item.augmented_reborn.flight.status": "Chestplate:",
 
-  "item.augmented_reborn.enabled": "Enabled",
-  "item.augmented_reborn.disabled": "Disabled",
+  "hud.augmented_reborn.status": "Quantum Chestplate",
+  "hud.augmented_reborn.energy": "Energy: %s",
+
+  "hud.augmented_reborn.enabled": "Enabled",
+  "hud.augmented_reborn.disabled": "Disabled",
 
   "item.augmented_reborn.vajra.tooltip.mode": "Vajra"
 }

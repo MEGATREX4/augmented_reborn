@@ -33,7 +33,7 @@ public class KeyBindingRegistry {
 
                     Text message = Text.translatable("item.augmented_reborn.night_vision.status")
                             .append(" ")
-                            .append(Text.translatable("item.augmented_reborn." + (newState ? "enabled" : "disabled"))
+                            .append(Text.translatable("hud.augmented_reborn." + (newState ? "enabled" : "disabled"))
                                     .styled(style -> style.withColor(newState ? Formatting.GREEN : Formatting.RED)));
                     client.player.sendMessage(message, true);
 

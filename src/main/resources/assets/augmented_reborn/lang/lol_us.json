@@ -16,8 +16,10 @@
 
   "item.augmented_reborn.night_vision.status": "Nite-vizhun:",
   "item.augmented_reborn.night_vision.status_message": "Nite-vizhun:",
-  "item.augmented_reborn.enabled": "ON LOL",
-  "item.augmented_reborn.disabled": "OFF LOL",
+  "hud.augmented_reborn.enabled": "ON LOL",
+  "hud.augmented_reborn.disabled": "OFF LOL",
+  "hud.augmented_reborn.status": "Quantum Cheeeez with plate",
+  "hud.augmented_reborn.energy": "Energeez: %s LOL",
 
   "item.augmented_reborn.vajra.tooltip.mode": "Vajra teh pwr"
 }
