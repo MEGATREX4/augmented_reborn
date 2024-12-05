@@ -15,6 +15,9 @@ public class AugmentedRebornClient implements ClientModInitializer {
         TooltipEventListener.register();
 
         // Register the HUD rendering callback for rendering custom HUD elements
-        HudRenderCallback.EVENT.register(QuantumChestplateHUD::renderHUD);
+        HudRenderCallback.EVENT.register((context, tickDelta) -> {
+            QuantumChestplateHUD.renderHUD(context, tickDelta);
+        });
+
     }
 }

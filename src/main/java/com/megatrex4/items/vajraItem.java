@@ -260,8 +260,11 @@ public class vajraItem extends DrillItem {
             damage = SMALL_DAMAGE + "";
         }
 
-        tooltip.add(Text.translatable("attribute.modifier.plus.0", damage, Text.translatable("attribute.name.generic.attack_damage"))
-                .setStyle(Style.EMPTY.withColor(Formatting.BLUE)));
+        tooltip.add(Text.literal("  ") // Adds spacing before the attribute modifier
+                .append(Text.translatable("attribute.modifier.plus.0", damage,
+                                Text.translatable("attribute.name.generic.attack_damage"))
+                        .setStyle(Style.EMPTY.withColor(Formatting.GREEN))));
+        tooltip.add(Text.empty());
     }
 
 
