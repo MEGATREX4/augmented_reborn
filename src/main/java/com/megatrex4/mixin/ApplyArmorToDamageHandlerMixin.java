@@ -48,7 +48,7 @@ public class ApplyArmorToDamageHandlerMixin {
 
             if (armorPiecesWithEnergy > 0) {
                 // Log the absorbed damage
-                LOGGER.info("Absorbed damage: " + totalDamageAbsorbed + " from " + armorPiecesWithEnergy + " armor pieces.");
+                //LOGGER.info("Absorbed damage: " + totalDamageAbsorbed + " from " + armorPiecesWithEnergy + " armor pieces.");
 
                 // Return the remaining damage after absorption
                 return amount - totalDamageAbsorbed;

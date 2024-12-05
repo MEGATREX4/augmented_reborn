@@ -157,7 +157,9 @@ public abstract class QuantumSuitItemMixin {
 
 
     private void handleLeggings(ItemStack stack, PlayerEntity player, QuantumSuitItem item) {
-
+        if (player.isSneaking()) {
+            removeSpeedBoost(player);
+        }
         if (player.isSprinting()) {
             if (item.tryUseEnergy(stack, TechRebornConfig.quantumSuitSprintingCost)) {
                 if (player.getAttributes()
@@ -175,15 +177,18 @@ public abstract class QuantumSuitItemMixin {
                 }
             }
         } else {
-            // Remove the speed boost modifier if it exists
-            EntityAttributeModifier modifier = player.getAttributes()
+            removeSpeedBoost(player);
+        }
+    }
+
+    private static void removeSpeedBoost(PlayerEntity player) {
+        EntityAttributeModifier modifier = player.getAttributes()
+                .getCustomInstance(EntityAttributes.GENERIC_MOVEMENT_SPEED)
+                .getModifier(LEGGINGS_SPEED_BOOST_UUID);
+        if (modifier != null) {
+            player.getAttributes()
                     .getCustomInstance(EntityAttributes.GENERIC_MOVEMENT_SPEED)
-                    .getModifier(LEGGINGS_SPEED_BOOST_UUID);
-            if (modifier != null) {
-                player.getAttributes()
-                        .getCustomInstance(EntityAttributes.GENERIC_MOVEMENT_SPEED)
-                        .removeModifier(modifier);
-            }
+                    .removeModifier(modifier);
         }
     }
 
