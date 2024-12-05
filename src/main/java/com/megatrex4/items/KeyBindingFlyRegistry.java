@@ -30,13 +30,6 @@ public class KeyBindingFlyRegistry {
                     boolean newState = !activatable.isActivated(chestItem);
                     activatable.toggleActivation(chestItem);
                     ActivatableItemPacket.send(newState);
-
-                    Text message = Text.translatable("item.augmented_reborn.flight.status")
-                            .append(" ")
-                            .append(Text.translatable("hud.augmented_reborn." + (newState ? "enabled" : "disabled"))
-                                    .styled(style -> style.withColor(newState ? Formatting.GREEN : Formatting.RED)));
-                    client.player.sendMessage(message, true);
-
                 }
             }
         });
