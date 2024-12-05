@@ -5,6 +5,7 @@ import com.megatrex4.items.ItemGroupRegistry;
 import com.megatrex4.items.ItemRegistry;
 import com.megatrex4.items.KeyBindingRegistry;
 import com.megatrex4.items.vajraItem;
+import com.megatrex4.network.ActivatableItemPacket;
 import com.megatrex4.network.ActivateNanoHelmetPacket;
 import com.megatrex4.screens.CustomGrindstoneScreenHandler;
 import net.fabricmc.api.ModInitializer;
@@ -31,6 +32,7 @@ public class AugmentedReborn implements ModInitializer {
 		ItemRegistry.ItemRegistry();
 		ItemGroupRegistry.ItemGroupRegistry();
 		ActivateNanoHelmetPacket.register();
+		ActivatableItemPacket.register();
 
 		CUSTOM_GRINDSTONE_HANDLER = ScreenHandlerRegistry.registerSimple(
 				new Identifier(MOD_ID, "custom_grindstone"),

@@ -21,6 +21,7 @@ import net.minecraft.nbt.NbtInt;
 import net.minecraft.nbt.NbtList;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundEvent;
+import net.minecraft.text.Style;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Hand;
@@ -49,6 +50,16 @@ public class vajraItem extends DrillItem {
     private static final String ENERGY_MODE_KEY = "EnergyMode";
     private static final String[] ENERGY_MODES = {"LOW", "MEDIUM", "INSANE", "FORTUNE", "SILK_TOUCH"};
 
+
+    @Override
+    public Multimap<EntityAttribute, EntityAttributeModifier> getAttributeModifiers(ItemStack stack, EquipmentSlot slot) {
+        if (slot == EquipmentSlot.MAINHAND) {
+            return ImmutableMultimap.of();
+        }
+        return super.getAttributeModifiers(stack, slot);
+    }
+
+
     public vajraItem(RcEnergyTier tier) {
         super(
                 TRToolMaterials.INDUSTRIAL_DRILL, // Tool material
@@ -59,7 +70,7 @@ public class vajraItem extends DrillItem {
                 0.1F,                             // Unpowered mining speed
                 MiningLevel.DIAMOND               // Mining level
         );
-        this.tier = tier; // Assign RcEnergyTier
+        this.tier = tier;
     }
 
     public static final long ENERGY_REQUIRED_FOR_ATTACK = 1500L;
@@ -87,26 +98,30 @@ public class vajraItem extends DrillItem {
         NbtCompound nbt = stack.getOrCreateNbt();
         return nbt.getString(ENERGY_MODE_KEY).isEmpty() ? "MEDIUM" : nbt.getString(ENERGY_MODE_KEY);
     }
+
     public static void setEnergyMode(ItemStack stack, String mode) {
         NbtCompound nbt = stack.getOrCreateNbt();
         nbt.putString(ENERGY_MODE_KEY, mode);
 
         if ("SILK_TOUCH".equals(mode)) {
-            stack.addEnchantment(Enchantments.SILK_TOUCH, 1); // Apply Silk Touch
+            stack.addEnchantment(Enchantments.SILK_TOUCH, 1);
         } else {
             Map<Enchantment, Integer> enchantments = EnchantmentHelper.get(stack);
-            enchantments.remove(Enchantments.SILK_TOUCH); // Remove Silk Touch if not in this mode
+            enchantments.remove(Enchantments.SILK_TOUCH);
             EnchantmentHelper.set(enchantments, stack);
         }
 
         if ("FORTUNE".equals(mode)) {
-            stack.addEnchantment(Enchantments.FORTUNE, FORTUNE_LEVEL); // Apply Fortune
+            stack.addEnchantment(Enchantments.FORTUNE, FORTUNE_LEVEL);
         } else {
             Map<Enchantment, Integer> enchantments = EnchantmentHelper.get(stack);
-            enchantments.remove(Enchantments.FORTUNE); // Remove Fortune if not in this mode
+            enchantments.remove(Enchantments.FORTUNE);
             EnchantmentHelper.set(enchantments, stack);
         }
+
+        nbt.putInt("HideFlags", 1);
     }
+
 
 
     @Override
@@ -134,7 +149,7 @@ public class vajraItem extends DrillItem {
         ItemStack stack = player.getStackInHand(hand);
 
         if (player.isSneaking()) {
-            cycleEnergyMode(stack); // Shift + Right-Click changes energy mode
+            cycleEnergyMode(stack);
             if (!world.isClient) {
                 String energyMode = getEnergyMode(stack);
                 player.sendMessage(Text.translatable("item.augmented_reborn.vajra.mode_change",
@@ -175,7 +190,7 @@ public class vajraItem extends DrillItem {
 
     @Override
     public boolean isEnchantable(ItemStack stack) {
-        return false; // Prevents the item from being enchanted
+        return false;
     }
 
 
@@ -185,7 +200,7 @@ public class vajraItem extends DrillItem {
 
         long energyRequired = MODE_VALUES.getOrDefault(energyMode, 0L);
         if (!hasSufficientEnergy(stack, energyRequired)) {
-            return 0.3f; // Unpowered mining speed
+            return 0.3f;
         }
 
         return MINING_SPEED_VALUES.getOrDefault(energyMode, super.getMiningSpeedMultiplier(stack, state));
@@ -193,33 +208,38 @@ public class vajraItem extends DrillItem {
 
     @Override
     public boolean isSuitableFor(BlockState state) {
-        return true; // Override to always return true, making the tool effective for all blocks.
+        return true;
     }
 
 
     private boolean consumeEnergyForAction(ItemStack stack, PlayerEntity player, long energyRequired) {
         if (!hasSufficientEnergy(stack, energyRequired)) {
-            return false; // Insufficient energy
+            return false;
         }
-        tryUseEnergy(stack, energyRequired); // Deduct energy
+        tryUseEnergy(stack, energyRequired);
         if (player != null) {
-            displayEnergy(player, stack); // Display remaining energy
+            displayEnergy(player, stack);
         }
-        return true; // Energy successfully consumed
+        return true;
     }
 
 
     @Override
     public void appendTooltip(ItemStack stack, @Nullable World world, List<Text> tooltip, TooltipContext context) {
+        if (stack.hasEnchantments()) {
+            tooltip.removeIf(line -> line.getString().contains("Enchantments"));
+        }
+        tooltip.clear();
+
+        tooltip.add(Text.translatable("item.augmented_reborn.vajra"));
         String energyMode = getEnergyMode(stack);
 
-        // Add tooltip for energy mode with "Mode" in regular color and mode name colored
+        tooltip.add(Text.empty());
         tooltip.add(Text.translatable("item.augmented_reborn.vajra.mode")
                 .append(" ")
                 .append(Text.translatable("item.augmented_reborn.vajra.mode." + energyMode.toLowerCase())
                         .styled(style -> style.withColor(getModeColor(energyMode)))));
 
-        // Display appropriate enchantment tooltip
         if ("SILK_TOUCH".equals(energyMode)) {
             tooltip.add(Text.translatable("enchantment.minecraft.silk_touch")
                     .styled(style -> style.withColor(Formatting.GRAY).withItalic(true)));
@@ -230,7 +250,20 @@ public class vajraItem extends DrillItem {
                     .append(Text.literal(fortuneRoman))
                     .styled(style -> style.withColor(Formatting.GRAY).withItalic(true)));
         }
+        tooltip.add(Text.literal(""));
+        tooltip.add(Text.translatable("item.modifiers.mainhand").setStyle(Style.EMPTY.withColor(Formatting.GRAY)));
+        String damage = "none";
+
+        if (hasSufficientEnergy(stack, ENERGY_REQUIRED_FOR_ATTACK)) {
+            damage = BIG_DAMAGE + "";
+        } else {
+            damage = SMALL_DAMAGE + "";
+        }
+
+        tooltip.add(Text.translatable("attribute.modifier.plus.0", damage, Text.translatable("attribute.name.generic.attack_damage"))
+                .setStyle(Style.EMPTY.withColor(Formatting.BLUE)));
     }
+
 
 
 
@@ -262,17 +295,14 @@ public class vajraItem extends DrillItem {
     @Override
     public boolean postHit(ItemStack stack, LivingEntity target, LivingEntity attacker) {
         if (attacker instanceof PlayerEntity player) {
-            // Get the damage value dynamically
+
             float damage = getDamage(stack);
 
-            // Use the DamageSource to create a player attack source
             DamageSource playerDamageSource = player.getDamageSources().playerAttack(player);
 
-            // Apply damage to the target
             target.damage(playerDamageSource, damage);
 
-            // Consume energy if the attack is powered
-            if (damage > SMALL_DAMAGE) { // Powered damage
+            if (damage > SMALL_DAMAGE) {
                 tryUseEnergy(stack, ENERGY_REQUIRED_FOR_ATTACK);
             }
         }
@@ -285,7 +315,6 @@ public class vajraItem extends DrillItem {
             String energyMode = getEnergyMode(stack);
             long energyRequired = MODE_VALUES.getOrDefault(energyMode, 0L);
 
-            // Consume energy for mining
             if (!consumeEnergyForMining(stack, player, energyRequired)) {
                 return false;
             }
@@ -301,11 +330,10 @@ public class vajraItem extends DrillItem {
 
     @Override
     public boolean canRepair(ItemStack stack, ItemStack ingredient) {
-        return false; // Prevents the item from being repaired in a grindstone
+        return false;
     }
 
 
-    // Energy item methods
     @Override
     public long getEnergyCapacity() {
         return 100_000_000L;
@@ -343,19 +371,18 @@ public class vajraItem extends DrillItem {
 
     private boolean hasSufficientEnergy(@Nullable ItemStack stack, long energyRequired) {
         if (stack == null || !stack.hasNbt()) {
-            return false; // Safely handle null or missing NBT
+            return false;
         }
 
-        // Use the static method `getStoredEnergyUnchecked` to retrieve energy.
         long storedEnergy = SimpleBatteryItem.getStoredEnergyUnchecked(stack);
         return storedEnergy >= energyRequired;
     }
 
     public float getDamage(@Nullable ItemStack stack) {
         if (stack == null || !hasSufficientEnergy(stack, ENERGY_REQUIRED_FOR_ATTACK)) {
-            return SMALL_DAMAGE; // Default unpowered damage
+            return SMALL_DAMAGE;
         }
-        return BIG_DAMAGE; // Powered damage
+        return BIG_DAMAGE;
     }
 
 }

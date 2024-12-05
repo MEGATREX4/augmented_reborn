@@ -33,12 +33,12 @@ public class TooltipEventListener {
                 boolean isActivated = activatable.isActivated(stack);
                 tooltip.add(Text.translatable("item.augmented_reborn.night_vision.status")
                         .append(" ")
-                        .append(Text.translatable("item.augmented_reborn.night_vision." + (isActivated ? "enabled" : "disabled"))
+                        .append(Text.translatable("item.augmented_reborn." + (isActivated ? "enabled" : "disabled"))
                                 .formatted(isActivated ? Formatting.GREEN : Formatting.RED)));
             } else {
                 tooltip.add(Text.translatable("item.augmented_reborn.night_vision.status")
                         .append(" ")
-                        .append(Text.translatable("item.augmented_reborn.night_vision.disabled")
+                        .append(Text.translatable("item.augmented_reborn.disabled")
                                 .formatted(Formatting.RED)));
             }
         }

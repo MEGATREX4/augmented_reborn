@@ -10,15 +10,14 @@
   "item.augmented_reborn.vajra.mode.insane": "INSANE SPEED LOL",
   "item.augmented_reborn.vajra.mode.fortune": "Fortune cookie fiv",
   "item.augmented_reborn.vajra.mode.silk_touch": "Silk paw",
-  "item.augmented_reborn.vajra.tooltip.damage": "Dmg: %s LOL",
 
   "key.augmented_reborn.toggle_night_vision": "Toggl teh nite-vizhun",
   "category.augmented_reborn.keys": "Augmented REBORN KEIZ",
 
   "item.augmented_reborn.night_vision.status": "Nite-vizhun:",
   "item.augmented_reborn.night_vision.status_message": "Nite-vizhun:",
-  "item.augmented_reborn.night_vision.enabled": "ON LOL",
-  "item.augmented_reborn.night_vision.disabled": "OFF LOL",
+  "item.augmented_reborn.enabled": "ON LOL",
+  "item.augmented_reborn.disabled": "OFF LOL",
 
   "item.augmented_reborn.vajra.tooltip.mode": "Vajra teh pwr"
 }

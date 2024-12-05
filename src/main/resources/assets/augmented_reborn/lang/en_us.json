@@ -10,15 +10,18 @@
   "item.augmented_reborn.vajra.mode.insane": "Insane",
   "item.augmented_reborn.vajra.mode.fortune": "Fortune",
   "item.augmented_reborn.vajra.mode.silk_touch": "Silk Touch",
-  "item.augmented_reborn.vajra.tooltip.damage": "Damage: %s",
 
   "key.augmented_reborn.toggle_night_vision": "Toggle Night Vision",
   "category.augmented_reborn.keys": "Augmented Reborn Keys",
 
   "item.augmented_reborn.night_vision.status": "Night Vision:",
   "item.augmented_reborn.night_vision.status_message": "Night Vision:",
-  "item.augmented_reborn.night_vision.enabled": "Enabled",
-  "item.augmented_reborn.night_vision.disabled": "Disabled",
+
+  "key.augmented_reborn.toggle_flight": "Quantum Chestplate",
+  "item.augmented_reborn.flight.status": "Chestplate:",
+
+  "item.augmented_reborn.enabled": "Enabled",
+  "item.augmented_reborn.disabled": "Disabled",
 
   "item.augmented_reborn.vajra.tooltip.mode": "Vajra"
 }
