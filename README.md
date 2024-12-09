@@ -1,22 +1,24 @@
 # Augmented Reborn
 
+**Augmented Reborn** is an addon for the **TechReborn** mod, enhancing Minecraft's futuristic gameplay with rebalanced armor mechanics and powerful tools.
+
 ## Features
 
 ### **Quantum and Nano Armor Overhaul**
 - **Rewritten Quantum Armor**:
-  - Uses attributes instead of effects for improved gameplay balance.
-  - Keybind for flight
+  - Attributes replace effects for better gameplay balance.
+  - **Keybind for Flight**.
   - Each piece provides **25% damage reduction** and consumes energy for protection.
 - **Night Vision Toggle**:
-  - Enabled with the **N key** for ease of use.
+  - Enabled with the **N key** for quick activation.
 - **Enhanced Protection**:
-  - Quantum and Nano Boots: Protect against fall damage.
-  - Quantum and Nano Helmet: Absorbs kinetic energy.
+  - **Quantum and Nano Boots**: Protect against fall damage.
+  - **Quantum and Nano Helmet**: Absorbs kinetic energy.
 
 ### **New Weapon and Tool: Vajra**
-- A versatile weapon and tool with multiple mining modes:
-  - **Low, Medium, and Insane**: Differ in energy consumption and block mining speed.
-  - **Fortune and Silk Touch**: Provides mining flexibility for different resources.
+- A multi-functional weapon and mining tool with the following modes:
+  - **Low, Medium, and Insane**: Adjusts energy consumption and mining speed.
+  - **Fortune and Silk Touch**: Tailored for specific resource gathering.
  
 ## Compatibility
 
