@@ -39,4 +39,4 @@ Contributions are welcome! Feel free to:
 
 ## License
 
-[CC 4.0] - See [LICENSE](LICENSE) for details.
+See [LICENSE](LICENSE) for details.
