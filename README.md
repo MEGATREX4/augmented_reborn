@@ -20,6 +20,8 @@
   - **Low, Medium, and Insane**: Adjusts energy consumption and mining speed.
   - **Fortune and Silk Touch**: Tailored for specific resource gathering.
  
+    ![vajra](https://cdn.modrinth.com/data/2sVzAvPE/images/55b7d76ed2a87fc3ab2be8da53e010054806ff5f.png)
+ 
 ## Compatibility
 
 - **Minecraft Version**: [1.20.1]
